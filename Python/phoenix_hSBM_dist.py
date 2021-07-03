@@ -48,21 +48,27 @@ def run_hSBM(texts, titles, sample):
         if len(topics) > 1:
             break
     print(model.L)
-    for level in range(1,model.L+1):
+    for level in range(0,model.L+1):
 
         group_results = model.get_groups(l = level)
         p_w_tw = group_results['p_w_tw']
-        p_w_td = group_results['p_w_td']
+        p_tw_td = group_results['p_tw_td']
         p_td_d = group_results['p_td_d']
 
         pd.DataFrame.to_csv(pd.DataFrame(p_w_tw), "".join(["data/Samples/p_w_tw", str(level),"_", str(sample), ".csv"]))
-        pd.DataFrame.to_csv(pd.DataFrame(p_w_td), "".join(["data/Samples/p_w_td", str(level),"_", str(sample), ".csv"]))
+        pd.DataFrame.to_csv(pd.DataFrame(p_tw_td), "".join(["data/Samples/p_tw_td", str(level),"_", str(sample), ".csv"]))
         pd.DataFrame.to_csv(pd.DataFrame(p_td_d), "".join(["data/Samples/p_td_d", str(level), "_", str(sample), ".csv"]))
+
+        np.save("data/Samples/p_w_tw" + str(level) + "_" +  str(sample) + ".npy",p_w_tw)
+        np.save("data/Samples/p_tw_td" + str(level) + "_" +  str(sample) + ".npy",p_tw_td)
+        np.save("data/Samples/p_td_d" + str(level) + "_" +  str(sample) + ".npy",p_td_d)
 
     pd.DataFrame.to_csv(pd.DataFrame(model.words), "".join(["data/Samples/words_all_", str(sample),  ".csv"]))
     pd.DataFrame.to_csv(pd.DataFrame(model.documents), "".join(["data/Samples/docs_all_", str(sample),  ".csv"]))
 
 data = pd.read_csv("data/clean_posts.csv")
+
+data = data[1:3000]
 
 # Get texts and titles
 texts = data["Content"].values.tolist()
