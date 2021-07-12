@@ -1,28 +1,13 @@
 library(tidyverse)
 
-# More samples between a and b than between b and c (we don't care as much for the full data)
-a = 0
-b = 0.5
-c = 1
-
-n1 = 20
-n2 = 5
-
 # First sample prop is 1 because that is considered the gold-label
 sample_prop <- c(
 	1,
 	rep(
-		each = 10, 
+		each = 200, 
 		c(
-			seq(a+(b-a)/n1, b, length.out = n1), 
-			seq(b+(c-b)/n2, c, length.out = n2)
+			0.01, 0.05, 0.1, 0.2, 0.3,0.4, 0.5, 0.65, 0.75,0.875, 1, 1.5, 2, 5, 10, 20
 		)
-	),
-	rep(
-	  each = 100, 
-	  c(
-	    0.01, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 1
-	  )
 	)
 )
 
