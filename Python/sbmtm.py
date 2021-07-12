@@ -727,5 +727,3 @@ class sbmtm():
     def get_mdl():
         mdl = self.mdl
         return mdl
-
-        

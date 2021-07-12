@@ -2,10 +2,10 @@
 
 source n_samp
 
-for i in $(seq 251 $n_samp)
+for i in $(0 0)
 do
   	echo $(date -u) "Running hSBM on samp $i"
-        sbatch hSBM.sh $i 
+        sbatch hSBM.sh $i
 done
 
 
