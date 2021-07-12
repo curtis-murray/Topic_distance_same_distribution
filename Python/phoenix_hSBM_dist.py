@@ -43,8 +43,6 @@ if len(glob.glob("data/Samples/words_all_*"+str(sample)+".csv")) > 0:
     print("Already done " + str(sample))
     quit()
 
-quit()
-
 def run_hSBM(texts, titles, sample):
     # Function to run the hSBM given the data, sample props, and sample ID (now called sample)
     model = sbmtm()
