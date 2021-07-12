@@ -6,7 +6,10 @@ p_tw_td_path <- "data/Samples/p_tw_td1_0.csv"
 p_w_tw_path <- "data/Samples/p_w_tw1_0.csv"
 
 read_csv("../Phoenix-Sampling/data/clean_posts.csv") %>% 
-	unnest_tokens()
+	unnest_tokens(word, Content) %>% 
+	group_by(Post_ID) %>% 
+	summarise(count = n()) %>% 
+	summarise(mean_count = mean(count))
 
 words_all <- tibble(words_all_path = words_all_path) %>% 
 	mutate(
