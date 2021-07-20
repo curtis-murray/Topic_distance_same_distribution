@@ -55,12 +55,11 @@ samples <-  words_all_all_path %>%
 
 for(sample in samples){
   probs <- tibble(p_w_tw_all_path = p_w_tw_all_path) %>% 
-    mutate(Sample_prop = str_extract(p_w_tw_all_path, "(?<=_)\\d(.\\d{1,})*(?=_)"),
-           Sample = str_extract(p_w_tw_all_path, "(?<=_)\\d{1,}(?=.csv)"),
+    mutate(Sample = str_extract(p_w_tw_all_path, "(?<=_)\\d{1,}(?=.csv)"),
            Level = str_extract(p_w_tw_all_path, "(?<=p_w_tw)\\d{1,}"),
     ) %>% 
     filter(Sample == sample) %>%  # TODO Make this a variable
-    map_at(c("Sample_prop", "Sample","Level"), as.double) %>% 
+    map_at(c("Sample","Level"), as.double) %>% 
     as_tibble() %>% 
     arrange(-Sample) %>% 
     mutate(
@@ -74,8 +73,8 @@ for(sample in samples){
           filter(p > 0)
       )) %>% 
     ungroup() %>% 
-    arrange(Sample, Sample_prop, Level) %>% 
-    mutate(Full = ifelse(Sample_prop == 1,1,0)) %>% 
+    arrange(Sample, Level) %>% 
+    mutate(Full = ifelse(Sample == 0,1,0)) %>% 
     group_by(Sample,Full) %>% 
     nest() %>% 
     group_by(Full) %>% 
@@ -84,7 +83,7 @@ for(sample in samples){
     mutate(Full = ifelse((Full) & (tmp == 1),1,0)) %>% 
     mutate(Sample = ifelse(Full, 0, Sample)) %>% 
     unnest() %>% 
-    select(Sample,Sample_prop, Level, mat) %>% 
+    select(Sample, Level, mat) %>% 
     arrange(Sample, Level)
   
   
@@ -95,10 +94,9 @@ for(sample in samples){
   #   write_csv("data/Samples.info/samples_info.csv")
   
   words_all <- tibble(words_all_all_path = words_all_all_path) %>% 
-    mutate(Sample_prop = str_extract(words_all_all_path, "(?<=_)\\d(.\\d{1,})*(?=_)"),
-           Sample = str_extract(words_all_all_path, "(?<=_)\\d{1,}(?=.csv)")) %>% 
+    mutate(Sample = str_extract(words_all_all_path, "(?<=_)\\d{1,}(?=.csv)")) %>% 
     filter(Sample == sample) %>% 
-    map_at(c("Sample_prop", "Sample"), as.double) %>% 
+    map_at(c("Sample"), as.double) %>% 
     as_tibble() %>% 
     mutate(
       words = map(
@@ -111,31 +109,45 @@ for(sample in samples){
     group_by(Sample) %>% 
     select(-words_all_all_path) %>% 
     ungroup() %>% 
-    arrange(Sample, Sample_prop) %>% 
-    mutate(Full = ifelse(Sample_prop == 1,1,0)) %>% 
+    arrange(Sample) %>% 
+    mutate(Full = ifelse(Sample == 0,1,0)) %>% 
     group_by(Full) %>% 
     mutate(tmp = 1:n()) %>% 
     ungroup() %>% 
     mutate(Full = ifelse((Full) & (tmp == 1),1,0)) %>% 
     mutate(Sample = ifelse(Full, 0, Sample)) %>% 
-    select(Sample,Sample_prop, words) %>% 
+    select(Sample, words) %>% 
     arrange(Sample)
   
   # Do we want ALL the vocab in the sampled topic structures? 
   # Penalty could be added after easily. Lets try that.
-  
+  if(sample ==0){
   tidy_topics_full <- probs %>% 
-    left_join(words_all, by = c("Sample", "Sample_prop")) %>% 	
+    left_join(words_all, by = c("Sample")) %>% 	
     dplyr::mutate(tidy_topics = 
                     map2(mat, words, ~.x %>%
                            full_join(.y, by = "word_ID") %>%
                            left_join(Vocab, by = "word")     # TODO: change to full if necessary
                     )
     ) %>% 
-    select(Sample, Sample_prop, Level, tidy_topics) %>% 
-    group_by(Sample, Sample_prop) %>% 
+    select(Sample, Level, tidy_topics) %>% 
+    group_by(Sample) %>% 
     ungroup()
-  
+  }else {
+    tidy_topics_full <- probs %>% 
+      left_join(words_all, by = c("Sample")) %>% 	
+      dplyr::mutate(tidy_topics = 
+                      map2(mat, words, ~.x %>%
+                             full_join(.y, by = "word_ID") %>%
+                             mutate(word = as.numeric(word)) %>% 
+                             left_join(Vocab %>% select(-word), by = c("word" = "word_ID_full")) %>% 
+                             mutate(word_ID_full = word) 
+                      )
+      ) %>% 
+      select(Sample, Level, tidy_topics) %>% 
+      group_by(Sample) %>% 
+      ungroup()
+  }
   tidy_topics_full %>% 
     unnest(tidy_topics) %>% 
     group_by(Sample, word_ID_full) %>% 
