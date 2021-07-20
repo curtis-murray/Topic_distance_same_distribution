@@ -105,7 +105,8 @@ for(sample in samples){
         words_all_all_path,
         ~read_csv(.x) %>% 
           mutate(word_ID = X1 + 1, word = `0`) %>% 
-          select(word_ID, word)
+          select(word_ID, word) %>%
+	  mutate(word = as.character(word))
       )) %>% 
     group_by(Sample) %>% 
     select(-words_all_all_path) %>% 
@@ -139,7 +140,8 @@ for(sample in samples){
     unnest(tidy_topics) %>% 
     group_by(Sample, word_ID_full) %>% 
     arrange(Level) %>% 
-    summarise(topic = paste(topic, collapse = "-")) %>% 
+    summarise(topic = paste(topic, collapse = "-"),
+              p = paste(p,collapse="_")) %>% 
     write_csv(paste("data/Tidy_Topics/sample_",sample,".csv",sep = ""))
   
   tidy_topics_full %>% 
@@ -148,6 +150,10 @@ for(sample in samples){
     select(word_ID_full, freq = p) %>% 
     arrange(word_ID_full) %>% 
     write_csv(paste("data/Vocab/sample_",sample,".csv",sep = ""))
+  
+  rm(probs)
+  rm(tidy_topics_full)
+  rm(words_all)
 }
 
 #n_samp <- tidy_topics_full %>% pull(Sample) %>% max()
