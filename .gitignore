@@ -1,6 +1,10 @@
 data/Scrape/*
 slurm*
 data/Samples/*
+data/Vocab/*
+data/Vocab.old/*
+data/Tidy_Topics/*
+data/Tidy_Topics.old/*
 .Rproj
 .Rproj.user
 .Rhistory
