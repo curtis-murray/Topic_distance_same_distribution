@@ -13,6 +13,8 @@ Vocab <- read_csv("data/clean_posts.csv") %>%
   arrange(word) %>% 
   mutate(word_ID_full = 1:n())
 
+sample_info <- read_csv("data/Samples.info/samples.csv")
+
 weighted_d <- list.files("data/Tree_Distance", full.names = TRUE) %>% 
   as_tibble() %>% 
   select(path = value) %>% 
@@ -21,10 +23,11 @@ weighted_d <- list.files("data/Tree_Distance", full.names = TRUE) %>%
                                       "distance_unweighted", 
                                       "distance_corpora_weighted", 
                                       "distance_both_ave_weighted",
-                                      "distance_full_weighted"))
+                                      "distance_full_weighted",
+                                      "distance_joint_prob"))
   )) %>% 
   unnest(data) %>% 
-  left_join(read_csv("data/Samples.info/samples_info.csv"), by = "Sample") %>% 
+  left_join(read_csv("data/Samples.info/samples.csv") %>% select(Sample = sample, Sample_prop = sample_prop), by = "Sample") %>% 
   select(-path) %>% 
   arrange(Sample) 
 
@@ -32,7 +35,8 @@ distances = c(
   "distance_unweighted", 
   "distance_corpora_weighted", 
   "distance_both_ave_weighted",
-  "distance_full_weighted"
+  "distance_full_weighted",
+  "distance_joint_prob"
 )
 
 #p <- 
@@ -122,12 +126,12 @@ p <- weighted_d %>%
   coord_cartesian(ylim = c(0,NA), xlim = c(0,1)) + 
   labs(x = "Proportion of documents sampled from corpus",y= "Topic structure distance")
 
-  p %>% ggsave(filename = paste("Figures/distance_violin_",dist,".pdf",sep = ""), 
+  p %>% ggsave(filename = paste("Figures/distance_violin_dist",dist,".pdf",sep = ""), 
              device = "pdf",
              height = 6, 
              width=8)
 
-  p %>% ggsave(filename =  paste("../Meeting Reports/Meeting_Book/files/Figures/distance_violin_",dist,".png",sep = ""),
+  p %>% ggsave(filename =  paste("../Meeting Reports/files/Figures/distance_violin_dist",dist,".png",sep = ""),
              device = "png", 
              height = 6, 
              width=8)
