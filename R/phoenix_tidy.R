@@ -163,6 +163,12 @@ for(sample in samples){
     arrange(word_ID_full) %>% 
     write_csv(paste("data/Vocab/sample_",sample,".csv",sep = ""))
   
+  tidy_topics_full %>%
+    group_by(Level) %>%
+    summarise() %>%
+    filter(Level == max(Level)) %>%
+    write_csv("data/Topic_Counts/sample_",sample,".csv",sep=""))
+
   rm(probs)
   rm(tidy_topics_full)
   rm(words_all)

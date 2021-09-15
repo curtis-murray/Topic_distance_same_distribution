@@ -24,17 +24,18 @@ else:
     # Consult the sample_info dataframe to work out what proportion of the data we sample
     sample_info = pd.read_csv("data/Samples.info/samples.csv")
     sample_prop = sample_info.query("sample == @sample")['sample_prop'].iloc[0]
-    sample_prop = float(sample_prop) #This stops things from breaking? I don't understand why it's neccesary
+    #sample_prop = float(sample_prop) #This stops things from breaking? I don't understand why it's neccesary
 
     n_docs = data.shape[0]
     n_docs_sample = round(sample_prop*n_docs)
-
+    #When we're not sampling from a proportion and just taking the number of docs
+    n_docs_sample = sample_prop
     # Get texts and titles
     p_w_tw = np.load("data/Samples/p_w_tw0_0.npy")
     p_tw_td = np.load("data/Samples/p_tw_td0_0.npy")
     my_gen = document_simulator()
     my_gen.specify_model(p_w_tw = p_w_tw, p_tw_td = p_tw_td)
-    my_gen.sim_docs(n_docs = n_docs_sample,n_words = 48)
+    my_gen.sim_docs(n_docs = n_docs_sample,n_words = 425)
 
     texts = my_gen.get_docs()
     titles = range(0,n_docs_sample)
